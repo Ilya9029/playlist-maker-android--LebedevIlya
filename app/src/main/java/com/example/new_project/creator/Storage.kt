@@ -1,5 +1,7 @@
 package com.example.new_project.creator
 
+import com.example.new_project.data.TrackDto
+
 class Storage {
     private val listTracks = listOf(
         TrackDto(
