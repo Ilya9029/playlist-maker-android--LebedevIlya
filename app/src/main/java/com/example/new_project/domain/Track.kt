@@ -1,4 +1,4 @@
-package com.example.new_project.data
+package com.example.new_project.domain
 
 data class Track(
     val trackName: String,

@@ -23,7 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.new_project.R
+import com.example.new_project.domain.SearchState
 
 @Composable
 fun SearchScreen(
@@ -41,6 +44,7 @@ fun SearchScreen(
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
+            placeholder = { Text(stringResource(R.string.search_placeholder)) },
             leadingIcon = {
                 Icon(
                     modifier = Modifier.clickable { viewModel.search(text) },
@@ -57,7 +61,7 @@ fun SearchScreen(
                     modifier = modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Введите строку для поиска")
+                    Text(stringResource(R.string.search_placeholder))
                 }
             }
 
@@ -88,7 +92,10 @@ fun SearchScreen(
                     modifier = modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Ошибка: $error", color = Color.Red)
+                    Text(
+                        stringResource(R.string.error_prefix) + error,
+                        color = Color.Red
+                    )
                 }
             }
         }
