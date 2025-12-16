@@ -11,21 +11,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.New_project">
-        <activity
-            android:name=".SearchActivity"
-            android:exported="false" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.new_project.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.New_project">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package com.example.new_project
+package com.example.new_project.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +9,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,8 +25,9 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainScreen(
-    onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSongs: () -> Unit,
+    onOpenPlaylists: () -> Unit,
+    onOpenFavorites: () -> Unit
 ) {
     MaterialTheme {
         Surface(
@@ -66,10 +66,9 @@ fun MainScreen(
                         )
                         .background(Color.White)
                 ) {
-                    MenuItem("Поиск", topOffset = 8.dp, onClick = onOpenSearch)
-                    MenuItem("Плейлисты")
-                    MenuItem("Избранное")
-                    MenuItem("Настройки", onClick = onOpenSettings)
+                    MenuItem("Songs", topOffset = 8.dp, onClick = onOpenSongs)
+                    MenuItem("Playlists", onClick = onOpenPlaylists)
+                    MenuItem("Favorites", onClick = onOpenFavorites)
                 }
             }
         }
@@ -83,10 +82,9 @@ fun MenuItem(
     onClick: () -> Unit = {}
 ) {
     val leadingIcon = when (title) {
-        "Поиск" -> Icons.Filled.Search
-        "Плейлисты" -> Icons.Filled.QueueMusic
-        "Избранное" -> Icons.Filled.FavoriteBorder
-        "Настройки" -> Icons.Filled.Settings
+        "Songs" -> Icons.Filled.Search
+        "Playlists" -> Icons.Filled.QueueMusic
+        "Favorites" -> Icons.Filled.FavoriteBorder
         else -> Icons.Filled.Search
     }
 
