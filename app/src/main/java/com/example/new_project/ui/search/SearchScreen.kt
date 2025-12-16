@@ -1,11 +1,7 @@
 package com.example.new_project.ui.search
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -14,37 +10,32 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.new_project.R
 import com.example.new_project.domain.SearchState
+import com.example.new_project.domain.Track
 
 @Composable
 fun SearchScreen(
     modifier: Modifier = Modifier,
-    viewModel: SearchViewModel
+    viewModel: SearchViewModel,
+    onTrackClick: (Track) -> Unit
 ) {
     val screenState by viewModel.searchScreenState.collectAsState()
     var text by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 48.dp, start = 16.dp, end = 16.dp)
             .fillMaxWidth()
     ) {
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            placeholder = { Text(stringResource(R.string.search_placeholder)) },
+            placeholder = { Text("Введите название трека или исполнителя") },
             leadingIcon = {
                 Icon(
                     modifier = Modifier.clickable { viewModel.search(text) },
@@ -57,46 +48,45 @@ fun SearchScreen(
 
         when (screenState) {
             is SearchState.Initial -> {
-                Box(
-                    modifier = modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(stringResource(R.string.search_placeholder))
-                }
+                Text(
+                    text = "Введи запрос и нажми на лупу",
+                    modifier = Modifier.padding(top = 24.dp)
+                )
             }
-
             is SearchState.Searching -> {
                 Box(
-                    modifier = modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
             }
-
             is SearchState.Success -> {
                 val tracks = (screenState as SearchState.Success).list
                 LazyColumn(
-                    modifier = modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
                 ) {
                     items(tracks.size) { index ->
-                        TrackListItem(track = tracks[index])
+                        val track = tracks[index]
+                        TrackListItem(
+                            track = track,
+                            onClick = { onTrackClick(track) }
+                        )
                         HorizontalDivider(thickness = 0.5.dp)
                     }
                 }
             }
-
             is SearchState.Fail -> {
                 val error = (screenState as SearchState.Fail).error
-                Box(
-                    modifier = modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        stringResource(R.string.error_prefix) + error,
-                        color = Color.Red
-                    )
-                }
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    modifier = Modifier.padding(top = 24.dp)
+                )
             }
         }
     }

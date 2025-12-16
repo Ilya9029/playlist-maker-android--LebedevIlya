@@ -6,11 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,11 +17,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.new_project.ui.search.SearchScreen
+import com.example.new_project.ui.search.SearchViewModel
+import com.example.new_project.domain.Track
 
 @Composable
 fun SongsScreen(
     onBack: () -> Unit,
-    onOpenTrackDetails: () -> Unit
+    onOpenTrackDetails: (Track) -> Unit,
+    viewModel: SearchViewModel
 ) {
     MaterialTheme {
         Surface(
@@ -32,7 +35,6 @@ fun SongsScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Синяя шапка с заголовком
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -58,7 +60,6 @@ fun SongsScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Белая карточка с содержимым
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -70,13 +71,13 @@ fun SongsScreen(
                             )
                         )
                         .background(Color.White)
-                        .clickable { onOpenTrackDetails() },
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        "Здесь будет список треков.\nНажми, чтобы открыть детали трека.",
-                        fontSize = 16.sp
+                    SearchScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        viewModel = viewModel,
+                        onTrackClick = { track ->
+                            onOpenTrackDetails(track)
+                        }
                     )
                 }
             }

@@ -12,11 +12,13 @@ import com.example.new_project.screens.TrackDetailsScreen
 import com.example.new_project.ui.screens.NewPlaylistScreen
 import com.example.new_project.ui.screens.PlaylistsScreen
 import com.example.new_project.viewmodel.PlaylistsViewModel
+import com.example.new_project.ui.search.SearchViewModel
+import com.example.new_project.domain.Track
 
 @Composable
 fun PlaylistHost(navController: NavHostController) {
-    // Создаём ViewModel один раз для всей навигации
     val playlistsViewModel: PlaylistsViewModel = viewModel()
+    val searchViewModel: SearchViewModel = viewModel()
 
     fun openMain() {
         navController.navigate(PlaylistScreen.MAIN.name)
@@ -38,7 +40,8 @@ fun PlaylistHost(navController: NavHostController) {
         navController.navigate(PlaylistScreen.NEW_PLAYLIST.name)
     }
 
-    fun openTrackDetails() {
+    fun openTrackDetails(track: Track) {
+        searchViewModel.setCurrentTrack(track)
         navController.navigate(PlaylistScreen.TRACK_DETAILS.name)
     }
 
@@ -61,7 +64,8 @@ fun PlaylistHost(navController: NavHostController) {
         composable(PlaylistScreen.SONGS.name) {
             SongsScreen(
                 onBack = { goBack() },
-                onOpenTrackDetails = { openTrackDetails() }
+                onOpenTrackDetails = { track -> openTrackDetails(track) },
+                viewModel = searchViewModel
             )
         }
 
@@ -73,10 +77,10 @@ fun PlaylistHost(navController: NavHostController) {
             )
         }
 
-
         composable(PlaylistScreen.FAVORITES.name) {
             FavoritesScreen(
-                onBack = { goBack() }
+                onBack = { goBack() },
+                viewModel = playlistsViewModel
             )
         }
 
@@ -89,7 +93,9 @@ fun PlaylistHost(navController: NavHostController) {
 
         composable(PlaylistScreen.TRACK_DETAILS.name) {
             TrackDetailsScreen(
-                onBack = { goBack() }
+                onBack = { goBack() },
+                searchViewModel = searchViewModel,
+                playlistsViewModel = playlistsViewModel
             )
         }
     }

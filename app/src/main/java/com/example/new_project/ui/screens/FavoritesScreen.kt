@@ -3,25 +3,35 @@ package com.example.new_project.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.new_project.viewmodel.PlaylistsViewModel
+import com.example.new_project.data.model.Track as DbTrack
 
 @Composable
 fun FavoritesScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: PlaylistsViewModel
 ) {
+    val favorites by viewModel.favoriteList.collectAsState(initial = emptyList<DbTrack>())
+
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -30,7 +40,7 @@ fun FavoritesScreen(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Синяя шапка с заголовком
+                // Синяя шапка
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -68,12 +78,68 @@ fun FavoritesScreen(
                             )
                         )
                         .background(Color.White),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Экран Favorites пока пустой")
+                    if (favorites.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "Нет избранных треков",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 8.dp)
+                        ) {
+                            items(favorites) { track ->
+                                FavoriteTrackItem(track = track)
+                                HorizontalDivider(thickness = 0.5.dp)
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun FavoriteTrackItem(
+    track: DbTrack
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp, horizontal = 16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = track.trackName,
+                fontSize = 16.sp
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = track.artistName,
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Text(
+            text = "${track.trackTimeMillis / 1000}s",
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
     }
 }
