@@ -38,10 +38,12 @@ class SearchViewModel : ViewModel() {
                 if (result.isNotEmpty()) {
                     _searchScreenState.value = SearchState.Success(result)
                 } else {
-                    _searchScreenState.value = SearchState.Fail("Ничего не найдено")
+                    android.util.Log.d("SearchViewModel", "Received empty list from repository for query: '$expression'")
+                    _searchScreenState.value = SearchState.Fail("Ничего не найдено для запроса \"$expression\"")
                 }
             } catch (e: Exception) {
-                _searchScreenState.value = SearchState.Fail("Ошибка поиска")
+                android.util.Log.e("SearchViewModel", "Exception occurred during search:", e)
+                _searchScreenState.value = SearchState.Fail("Ошибка поиска: ${e.message}")
             }
         }
     }

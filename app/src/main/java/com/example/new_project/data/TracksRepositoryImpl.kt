@@ -1,8 +1,7 @@
 package com.example.new_project.data
 
-import com.example.new_project.domain.NetworkClient
-import com.example.new_project.domain.Track
-import com.example.new_project.domain.TracksRepository
+import com.example.new_project.data.dto.TracksSearchResponse
+import com.example.new_project.domain.*
 
 class TracksRepositoryImpl(
     private val networkClient: NetworkClient
@@ -10,19 +9,26 @@ class TracksRepositoryImpl(
 
     override suspend fun searchTracks(expression: String): List<Track> {
         val response = networkClient.doRequest(TracksSearchRequest(expression))
-        kotlinx.coroutines.delay(1000) // просто ждём секунду
 
-        return if (response.resultCode == 200) {
-            (response as TracksSearchResponse).results.map {
-                val seconds = it.trackTimeMillis / 1000
-                val minutes = seconds / 60
-                val trackTime = "%02d".format(minutes) + ":" +
-                        "%02d".format(seconds - minutes * 60)
-
-                Track(it.trackName, it.artistName, trackTime)
+        when (response.resultCode) {
+            200 -> {
+                return if (response is TracksSearchResponse) {
+                    response.results.map { trackDto ->
+                        val totalSeconds = trackDto.trackTimeMillis / 1000
+                        val minutes = totalSeconds / 60
+                        val seconds = totalSeconds % 60
+                        val formattedTime = "%02d:%02d".format(minutes, seconds)
+                        Track(trackDto.trackName, trackDto.artistName, formattedTime)
+                    }
+                } else {
+                    android.util.Log.e("TracksRepository", "Unexpected response type: ${response.javaClass}")
+                    emptyList()
+                }
             }
-        } else {
-            emptyList()
+            else -> {
+                android.util.Log.e("TracksRepository", "API returned error code: ${response.resultCode}, message: ${response.errorMessage}")
+                return emptyList()
+            }
         }
     }
 }
