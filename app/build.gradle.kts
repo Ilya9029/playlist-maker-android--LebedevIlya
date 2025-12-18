@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.new_project"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36  // ✅ ИСПРАВЛЕНО
 
     defaultConfig {
         applicationId = "com.example.new_project"
@@ -34,7 +32,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "11"  // ✅ Можно оставить "11" для Java 11
     }
     buildFeatures {
         compose = true
@@ -42,15 +40,33 @@ android {
 }
 
 dependencies {
+    // AndroidX
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+
+    // Compose
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.contentpager)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.navigation.compose)
+
+    // Network
+    implementation(libs.retrofit2.retrofit)            // ✅ УДАЛИТЬ дубли
+    implementation(libs.converter.gson)                // ✅ УДАЛИТЬ дубли
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.core)       // ✅ УДАЛИТЬ дубли
+    implementation(libs.kotlinx.coroutines.android)    // ✅ УДАЛИТЬ дубли
+
+    // Для логирования сетевых запросов (опционально)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation(libs.androidx.compose.foundation)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -58,17 +74,5 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.retrofit2.retrofit)
-    implementation(libs.converter.gson)
-
-    // Если используется Kotlin Coroutines
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

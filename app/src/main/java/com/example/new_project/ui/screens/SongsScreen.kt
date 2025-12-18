@@ -1,4 +1,4 @@
-package com.example.new_project.screens
+package com.example.new_project.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,12 +19,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.new_project.ui.search.SearchScreen
 import com.example.new_project.ui.search.SearchViewModel
-import com.example.new_project.domain.Track
 
 @Composable
 fun SongsScreen(
     onBack: () -> Unit,
-    onOpenTrackDetails: (Track) -> Unit,
+    onOpenTrackDetails: (String) -> Unit,  // ← ИЗМЕНИТЬ: String вместо Track
     viewModel: SearchViewModel
 ) {
     MaterialTheme {
@@ -76,7 +75,7 @@ fun SongsScreen(
                         modifier = Modifier.fillMaxSize(),
                         viewModel = viewModel,
                         onTrackClick = { track ->
-                            onOpenTrackDetails(track)
+                            onOpenTrackDetails(track.id)  // ← ИЗМЕНИТЬ: track.id вместо track
                         }
                     )
                 }

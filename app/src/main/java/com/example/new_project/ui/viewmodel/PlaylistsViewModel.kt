@@ -1,27 +1,25 @@
-package com.example.new_project.viewmodel
+package com.example.new_project.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.new_project.data.model.Playlist
-import com.example.new_project.data.model.Track
-import com.example.new_project.data.repository.PlaylistsRepositoryImpl
-import com.example.new_project.data.repository.TracksRepositoryImpl
+import com.example.new_project.creator.Creator
+import com.example.new_project.data.repository.PlaylistsRepository
+import com.example.new_project.data.repository.TracksRepository
+import com.example.new_project.domain.Playlist
+import com.example.new_project.domain.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
 class PlaylistsViewModel : ViewModel() {
-    private val playlistsRepository = PlaylistsRepositoryImpl(scope = viewModelScope)
-    private val tracksRepository = TracksRepositoryImpl(scope = viewModelScope)
+    private val playlistsRepository: PlaylistsRepository =
+        Creator.getPlaylistsRepository(viewModelScope)
 
-    val playlists: Flow<List<Playlist>> = flow {
-        val collectedPlaylists = mutableListOf<Playlist>()
-        playlistsRepository.getAllPlaylists().collect { playlist ->
-            collectedPlaylists.addAll(playlist)
-            emit(collectedPlaylists.toList())
-        }
-    }
+    private val tracksRepository: TracksRepository =
+        Creator.getTracksRepository(viewModelScope)
+
+    // ✅ ИСПРАВЛЕНО: убрано накопление, просто передаём поток
+    val playlists: Flow<List<Playlist>> = playlistsRepository.getAllPlaylists()
 
     val favoriteList: Flow<List<Track>> = tracksRepository.getFavoriteTracks()
 
@@ -31,12 +29,12 @@ class PlaylistsViewModel : ViewModel() {
         }
     }
 
-    suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
-        tracksRepository.insertTrackToPlaylist(track, playlistId)
+    suspend fun toggleFavorite(track: Track) {
+        tracksRepository.updateTrackFavoriteStatus(track, !track.isFavorite)
     }
 
-    suspend fun toggleFavorite(track: Track, isFavorite: Boolean) {
-        tracksRepository.updateTrackFavoriteStatus(track, isFavorite)
+    suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
+        tracksRepository.insertTrackToPlaylist(track, playlistId)
     }
 
     suspend fun deleteTrackFromPlaylist(track: Track) {

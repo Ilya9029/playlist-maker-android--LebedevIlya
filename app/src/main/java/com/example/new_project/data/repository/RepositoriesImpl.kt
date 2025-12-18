@@ -1,8 +1,11 @@
 package com.example.new_project.data.repository
 
+import com.example.new_project.data.TracksSearchRequest
 import com.example.new_project.data.database.DatabaseMock
-import com.example.new_project.data.model.Playlist
-import com.example.new_project.data.model.Track
+import com.example.new_project.data.dto.TracksSearchResponse
+import com.example.new_project.domain.NetworkClient
+import com.example.new_project.domain.Playlist
+import com.example.new_project.domain.Track
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
@@ -28,36 +31,70 @@ class PlaylistsRepositoryImpl(
     }
 }
 
+// TracksRepositoryImpl.kt - ИЗМЕНИТЕ конструктор и метод searchTracks
 class TracksRepositoryImpl(
-    private val scope: CoroutineScope
+private val scope: CoroutineScope,
+private val networkClient: NetworkClient
 ) : TracksRepository {
     private val database = DatabaseMock(scope = scope)
 
     override suspend fun searchTracks(expression: String): List<Track> {
-        return database.searchTracks(expression)
+        // Всегда ищем в сети, даже при пустом запросе
+        return searchInNetwork(expression)
     }
+
+    private suspend fun searchInNetwork(expression: String): List<Track> {
+        android.util.Log.d("Search", "Searching in iTunes API: '$expression'")
+        return try {
+            val response = networkClient.doRequest(TracksSearchRequest(expression))
+
+            // ✅ Проверяем, что это TracksSearchResponse и есть результаты
+            if (response is TracksSearchResponse) {
+                val tracks = response.results.map { it.toTrack() }
+                android.util.Log.d("Search", "✅ Found ${tracks.size} tracks from API")
+
+                // Кэшируем найденные треки
+                tracks.forEach { database.insertTrack(it) }
+                tracks
+            } else {
+                android.util.Log.w("Search", "⚠️ Unexpected response type")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("Search", "🌐 Network error: ${e.message}", e)
+            emptyList()
+        }
+    }
+
 
     override fun getTrackByNameAndArtist(track: Track): Flow<Track?> {
         return database.getTrackByNameAndArtist(track)
     }
 
+    override fun getFavoriteTracks(): Flow<List<Track>> {
+        return database.getFavoriteTracks()
+    }
+
     override suspend fun insertTrackToPlaylist(track: Track, playlistId: Long) {
-        database.insertTrack(track.copy(playlistId = playlistId))
+        database.insertTrack(track)
+        database.addTrackToPlaylist(track.id, playlistId)
     }
 
     override suspend fun deleteTrackFromPlaylist(track: Track) {
-        database.insertTrack(track.copy(playlistId = 0))
+        database.removeTrackFromPlaylist(track.id)
     }
 
     override suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean) {
-        database.insertTrack(track.copy(favorite = isFavorite))
+        val updatedTrack = track.copy(isFavorite = isFavorite)
+        database.insertTrack(updatedTrack)
     }
 
-    override fun deleteTracksByPlaylistId(playlistId: Long) {
+    override suspend fun deleteTracksByPlaylistId(playlistId: Long) {
         database.deleteTracksByPlaylistId(playlistId)
     }
 
-    override fun getFavoriteTracks(): Flow<List<Track>> {
-        return database.getFavoriteTracks()
+    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ДОБАВЛЕН ОТСУТСТВУЮЩИЙ МЕТОД
+    override suspend fun getTrackById(trackId: String): Track? {
+        return database.getTrackById(trackId)
     }
 }

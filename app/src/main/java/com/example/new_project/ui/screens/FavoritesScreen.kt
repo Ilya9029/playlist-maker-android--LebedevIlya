@@ -1,4 +1,4 @@
-package com.example.new_project.screens
+package com.example.new_project.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,15 +22,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.new_project.viewmodel.PlaylistsViewModel
-import com.example.new_project.data.model.Track as DbTrack
+import com.example.new_project.domain.Track
+import com.example.new_project.ui.viewmodel.PlaylistsViewModel
 
 @Composable
 fun FavoritesScreen(
     onBack: () -> Unit,
+    onOpenTrackDetails: (String) -> Unit,  // ← ДОБАВЛЕН новый параметр
     viewModel: PlaylistsViewModel
 ) {
-    val favorites by viewModel.favoriteList.collectAsState(initial = emptyList<DbTrack>())
+    // ИСПРАВЛЕНИЕ: добавлен обязательный параметр initial
+    val favorites by viewModel.favoriteList.collectAsState(initial = emptyList())
 
     MaterialTheme {
         Surface(
@@ -50,7 +52,7 @@ fun FavoritesScreen(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = "Назад",
                         tint = Color.White,
                         modifier = Modifier
                             .size(24.dp)
@@ -58,7 +60,7 @@ fun FavoritesScreen(
                     )
                     Spacer(modifier = Modifier.width(16.dp))
                     Text(
-                        "Favorites",
+                        text = "Избранное",
                         fontSize = 22.sp,
                         color = Color.White
                     )
@@ -86,7 +88,7 @@ fun FavoritesScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                "Нет избранных треков",
+                                text = "Нет избранных треков",
                                 fontSize = 16.sp,
                                 color = Color.Gray
                             )
@@ -98,7 +100,13 @@ fun FavoritesScreen(
                                 .padding(top = 8.dp)
                         ) {
                             items(favorites) { track ->
-                                FavoriteTrackItem(track = track)
+                                FavoriteTrackItem(
+                                    track = track,
+                                    onClick = {
+                                        // ИСПРАВЛЕНО: открываем детали трека
+                                        onOpenTrackDetails(track.id)
+                                    }
+                                )
                                 HorizontalDivider(thickness = 0.5.dp)
                             }
                         }
@@ -111,11 +119,13 @@ fun FavoritesScreen(
 
 @Composable
 private fun FavoriteTrackItem(
-    track: DbTrack
+    track: Track,
+    onClick: () -> Unit  // ← ДОБАВЛЕН параметр
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)  // ← ИСПОЛЬЗУЕМ параметр
             .padding(vertical = 12.dp, horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -137,7 +147,7 @@ private fun FavoriteTrackItem(
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
-            text = "${track.trackTimeMillis / 1000}s",
+            text = track.trackTime,
             fontSize = 12.sp,
             color = Color.Gray
         )

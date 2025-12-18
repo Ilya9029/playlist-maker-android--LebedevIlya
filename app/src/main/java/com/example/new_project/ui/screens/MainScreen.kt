@@ -1,4 +1,4 @@
-package com.example.new_project.screens
+package com.example.new_project.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

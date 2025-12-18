@@ -14,7 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.new_project.viewmodel.PlaylistsViewModel
+import com.example.new_project.ui.viewmodel.PlaylistsViewModel
 
 @Composable
 fun NewPlaylistScreen(
