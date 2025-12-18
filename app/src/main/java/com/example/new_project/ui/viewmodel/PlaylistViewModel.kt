@@ -3,6 +3,7 @@ package com.example.new_project.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.new_project.data.repository.PlaylistsRepository
+import com.example.new_project.data.repository.TracksRepository
 import com.example.new_project.domain.Playlist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,22 +12,19 @@ import kotlinx.coroutines.launch
 
 /**
  * ViewModel для экрана одного конкретного плейлиста
- * (не путать с PlaylistsViewModel для списка плейлистов)
  */
 class PlaylistViewModel(
     private val playlistId: Long,
-    private val playlistsRepository: PlaylistsRepository
+    private val playlistsRepository: PlaylistsRepository,
+    private val tracksRepository: TracksRepository // ✅ ДОБАВЛЕНО: для удаления треков
 ) : ViewModel() {
 
-    // StateFlow для хранения состояния плейлиста
     private val _playlist = MutableStateFlow<Playlist?>(null)
     val playlist: StateFlow<Playlist?> = _playlist.asStateFlow()
 
-    // StateFlow для загрузки
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // StateFlow для ошибок
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
@@ -34,9 +32,6 @@ class PlaylistViewModel(
         loadPlaylist()
     }
 
-    /**
-     * Загружает плейлист из репозитория
-     */
     private fun loadPlaylist() {
         viewModelScope.launch {
             try {
@@ -57,10 +52,21 @@ class PlaylistViewModel(
         }
     }
 
-    /**
-     * Обновляет плейлист (например, после добавления трека)
-     */
     fun refreshPlaylist() {
         loadPlaylist()
+    }
+
+    // ✅ ИСПРАВЛЕННЫЙ МЕТОД: удаление трека из плейлиста
+    suspend fun deleteTrackFromPlaylist(trackId: String): Boolean {
+        return try {
+            // Используем tracksRepository напрямую
+            tracksRepository.deleteTrackFromPlaylist(trackId, playlistId)
+            // Обновляем плейлист после удаления
+            refreshPlaylist()
+            true
+        } catch (e: Exception) {
+            _error.value = "Ошибка удаления: ${e.message}"
+            false
+        }
     }
 }

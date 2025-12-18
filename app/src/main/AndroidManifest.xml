@@ -2,7 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Разрешение для доступа к интернету (уже есть) -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- ✅ НОВОЕ: Разрешение для чтения файлов на устройстве -->
+    <!-- READ_EXTERNAL_STORAGE нужен только для Android 12 и ниже (API 32 и ниже) -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <application
         android:name=".PlaylistMakerApplication"
@@ -16,15 +23,15 @@
         android:theme="@style/Theme.New_project"
         tools:targetApi="31">
 
-    <activity
-        android:name=".MainActivity"
-        android:exported="true"
-        android:theme="@style/Theme.New_project">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
-</application>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.New_project">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 
-    </manifest>
+</manifest>

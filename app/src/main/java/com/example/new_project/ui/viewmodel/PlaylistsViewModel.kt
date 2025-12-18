@@ -41,7 +41,7 @@ class PlaylistsViewModel(
 
     // ========== ОСНОВНЫЕ МЕТОДЫ ==========
 
-    fun createNewPlayList(namePlaylist: String, description: String) {
+    fun createNewPlayList(namePlaylist: String, description: String, coverImageUri: String? = null) {  // ✅ ИЗМЕНЕНО: добавлен параметр
         if (namePlaylist.isBlank()) {
             _createPlaylistError.value = "Введите название плейлиста"
             return
@@ -53,7 +53,7 @@ class PlaylistsViewModel(
                 _createPlaylistError.value = null
                 _createPlaylistSuccess.value = false
 
-                playlistsRepository.addNewPlaylist(namePlaylist, description)
+                playlistsRepository.addNewPlaylist(namePlaylist, description, coverImageUri)  // ✅ ИЗМЕНЕНО: передаем URI
                 _createPlaylistSuccess.value = true
             } catch (e: Exception) {
                 _createPlaylistError.value = "Ошибка создания: ${e.message}"

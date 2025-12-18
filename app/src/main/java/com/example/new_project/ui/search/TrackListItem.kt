@@ -2,7 +2,7 @@ package com.example.new_project.ui.search
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,12 +19,16 @@ import com.example.new_project.domain.Track
 @Composable
 fun TrackListItem(
     track: Track,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongPress: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongPress
+            )
             .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -33,17 +37,15 @@ fun TrackListItem(
             modifier = Modifier.size(56.dp)
         ) {
             if (!track.artworkUrl.isNullOrEmpty()) {
-                // Есть URL обложки — загружаем через Coil
                 AsyncImage(
                     model = track.artworkUrl,
                     contentDescription = "Обложка альбома: ${track.trackName}",
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = android.R.drawable.ic_menu_gallery), // временно
-                    error = painterResource(id = android.R.drawable.ic_menu_report_image) // временно
+                    placeholder = painterResource(id = android.R.drawable.ic_menu_gallery),
+                    error = painterResource(id = android.R.drawable.ic_menu_report_image)
                 )
             } else {
-                // Нет обложки — показываем плейсхолдер
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

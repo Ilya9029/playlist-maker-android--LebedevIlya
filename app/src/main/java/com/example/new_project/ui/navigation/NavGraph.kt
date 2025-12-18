@@ -43,7 +43,8 @@ fun NavGraph(
             MainScreen(
                 onOpenSongs = { navigationActions.navigateToSongs() },
                 onOpenPlaylists = { navigationActions.navigateToPlaylists() },
-                onOpenFavorites = { navigationActions.navigateToFavorites() }
+                onOpenFavorites = { navigationActions.navigateToFavorites() },
+                onOpenSettings = { navigationActions.navigateToSettings() }  // ✅ ДОБАВЛЕНО
             )
         }
 
@@ -75,6 +76,12 @@ fun NavGraph(
                     navigationActions.navigateToTrackDetails(trackId)
                 },
                 viewModel = playlistsViewModel
+            )
+        }
+
+        composable(NavigationRoutes.Settings.route) {  // ✅ ДОБАВЛЕНО: экран настроек
+            SettingsScreen(
+                onBack = { navigationActions.navigateBack() }
             )
         }
 
@@ -113,8 +120,10 @@ fun NavGraph(
         ) { backStackEntry ->
             val playlistId = backStackEntry.arguments?.getLong(NavigationRoutes.PLAYLIST_ID_ARG) ?: 0L
 
-            // Создаем ViewModel через Creator
-            val playlistViewModel = Creator.createPlaylistViewModel(playlistId)
+            // Создаем ViewModel через фабрику
+            val playlistViewModel: PlaylistViewModel = viewModel(
+                factory = PlaylistViewModelFactory(playlistId)
+            )
 
             PlaylistScreen(
                 playlistId = playlistId,
@@ -140,5 +149,14 @@ class SearchViewModelFactory : androidx.lifecycle.ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
         return Creator.createSearchViewModel() as T
+    }
+}
+
+class PlaylistViewModelFactory(
+    private val playlistId: Long
+) : androidx.lifecycle.ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+        return Creator.createPlaylistViewModel(playlistId) as T
     }
 }

@@ -19,6 +19,10 @@ class NavigationActions(private val navController: NavHostController) {
         navController.navigate(NavigationRoutes.Favorites.route)
     }
 
+    fun navigateToSettings() {  // ✅ ДОБАВЛЕНО
+        navController.navigate(NavigationRoutes.Settings.route)
+    }
+
     fun navigateToNewPlaylist() {
         navController.navigate(NavigationRoutes.NewPlaylist.route)
     }
@@ -27,7 +31,6 @@ class NavigationActions(private val navController: NavHostController) {
         navController.navigate(NavigationRoutes.TrackDetails.createRoute(trackId))
     }
 
-    // ✅ ДОБАВЛЕНО: Переход к деталям плейлиста
     fun navigateToPlaylistDetails(playlistId: Long) {
         navController.navigate(NavigationRoutes.PlaylistDetails.createRoute(playlistId))
     }

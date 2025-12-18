@@ -5,11 +5,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -18,8 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.new_project.domain.Playlist
 import com.example.new_project.ui.viewmodel.PlaylistsViewModel
 
@@ -27,10 +32,9 @@ import com.example.new_project.ui.viewmodel.PlaylistsViewModel
 fun PlaylistsScreen(
     onBack: () -> Unit,
     onOpenNewPlaylist: () -> Unit,
-    onOpenPlaylist: (Long) -> Unit,  // ✅ ДОБАВЛЕНО: параметр для открытия плейлиста
+    onOpenPlaylist: (Long) -> Unit,
     viewModel: PlaylistsViewModel
 ) {
-    // Собираем список плейлистов из ViewModel
     val playlists by viewModel.playlists.collectAsState(initial = emptyList())
 
     Box(
@@ -49,7 +53,6 @@ fun PlaylistsScreen(
                     .padding(start = 16.dp, top = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Используем IconButton для лучшей семантики
                 IconButton(
                     onClick = onBack,
                     modifier = Modifier.size(48.dp)
@@ -110,12 +113,10 @@ fun PlaylistsScreen(
                             .fillMaxSize()
                             .padding(top = 8.dp)
                     ) {
-                        // Используем items напрямую с коллекцией
                         items(items = playlists, key = { it.id }) { playlist ->
                             PlaylistListItem(
                                 playlist = playlist,
                                 onClick = {
-                                    // ✅ ИСПРАВЛЕНО: вызываем onOpenPlaylist с ID плейлиста
                                     onOpenPlaylist(playlist.id)
                                 }
                             )
@@ -131,7 +132,7 @@ fun PlaylistsScreen(
             modifier = Modifier
                 .padding(bottom = 32.dp, end = 32.dp)
                 .align(Alignment.BottomEnd),
-            onClick = onOpenNewPlaylist, // Прямой переход на экран создания
+            onClick = onOpenNewPlaylist,
             containerColor = MaterialTheme.colorScheme.primary,
             contentColor = Color.White
         ) {
@@ -143,7 +144,7 @@ fun PlaylistsScreen(
     }
 }
 
-// Компонент для одного плейлиста в списке
+// Обновленный компонент для одного плейлиста в списке
 @Composable
 fun PlaylistListItem(
     playlist: Playlist,
@@ -153,10 +154,46 @@ fun PlaylistListItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 16.dp, horizontal = 20.dp),
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // Обложка плейлиста (слева)
+        Box(
+            modifier = Modifier.size(56.dp)
+        ) {
+            if (playlist.coverImageUri != null) {
+                // ✅ НОВОЕ: показываем обложку если есть
+                AsyncImage(
+                    model = android.net.Uri.parse(playlist.coverImageUri),
+                    contentDescription = playlist.name,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // Плейсхолдер если нет обложки
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Gray.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MusicNote,
+                        contentDescription = "Нет обложки",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Gray
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Информация о плейлисте (центр)
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -164,7 +201,8 @@ fun PlaylistListItem(
                 text = playlist.name,
                 fontSize = 16.sp,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -181,7 +219,7 @@ fun PlaylistListItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Используем более подходящую иконку
+        // Иконка стрелки (справа)
         Icon(
             imageVector = Icons.Filled.KeyboardArrowRight,
             contentDescription = "Открыть плейлист",

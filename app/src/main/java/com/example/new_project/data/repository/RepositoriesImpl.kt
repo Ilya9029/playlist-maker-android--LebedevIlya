@@ -42,10 +42,11 @@ class PlaylistsRepositoryImpl(
             }
     }
 
-    override suspend fun addNewPlaylist(name: String, description: String) {
+    override suspend fun addNewPlaylist(name: String, description: String, coverImageUri: String?) {  // ✅ ИЗМЕНЕНО: добавлен параметр
         val playlistEntity = com.example.new_project.data.database.entity.PlaylistEntity(
             name = name,
-            description = description
+            description = description,
+            coverImageUri = coverImageUri  // ✅ НОВОЕ: передаем URI обложки
         )
         playlistDao.insertPlaylist(playlistEntity)
     }
@@ -173,27 +174,50 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun deleteTrackFromPlaylist(trackId: String, playlistId: Long) {
-        Log.d("TracksRepository", "Deleting track $trackId from playlist $playlistId")
+        Log.d("TracksRepository", "=== START deleteTrackFromPlaylist ===")
+        Log.d("TracksRepository", "trackId: $trackId, playlistId: $playlistId")
 
-        // 1. Находим трек в БД
-        val track = getTrackById(trackId)
+        try {
+            // 1. Находим трек в БД
+            Log.d("TracksRepository", "Looking for track by ID: $trackId")
+            val track = getTrackById(trackId)
 
-        if (track != null) {
+            if (track == null) {
+                Log.w("TracksRepository", "❌ Track $trackId NOT FOUND in database")
+                throw Exception("Трек с ID '$trackId' не найден в базе данных")
+            }
+
+            Log.d("TracksRepository", "✅ Track found: ${track.trackName}")
+
             val trackEntity = findTrackEntity(track)
 
             if (trackEntity != null) {
+                Log.d("TracksRepository", "✅ Track entity found: ID=${trackEntity.id}")
+
                 // 2. Удаляем связь из промежуточной таблицы
                 val crossRef = PlaylistTrackCrossRef(
                     playlist_id = playlistId,
                     track_id = trackEntity.id
                 )
+
+                Log.d("TracksRepository", "Removing crossref: playlist=$playlistId, track=${trackEntity.id}")
                 playlistDao.removeTrackFromPlaylist(crossRef)
-                Log.d("TracksRepository", "Track removed from playlist successfully")
+                Log.d("TracksRepository", "✅ Track removed from playlist successfully")
             } else {
-                Log.w("TracksRepository", "Track entity not found for ID: $trackId")
+                Log.w("TracksRepository", "❌ Track entity not found for track: ${track.trackName}")
+                throw Exception("Не удалось найти данные трека '${track.trackName}' в базе")
             }
-        } else {
-            Log.w("TracksRepository", "Track $trackId not found in database")
+
+        } catch (e: Exception) {
+            Log.e("TracksRepository", "❌ ERROR in deleteTrackFromPlaylist:", e)
+            // Генерируем понятное сообщение об ошибке
+            val errorMessage = when {
+                e.message != null -> "Не удалось удалить трек: ${e.message}"
+                else -> "Неизвестная ошибка при удалении трека"
+            }
+            throw Exception(errorMessage, e) // Сохраняем оригинальное исключение
+        } finally {
+            Log.d("TracksRepository", "=== END deleteTrackFromPlaylist ===")
         }
     }
 
@@ -260,25 +284,26 @@ class TracksRepositoryImpl(
     }
 
     override suspend fun getTrackById(trackId: String): Track? {
-        Log.d("TracksRepository", "Getting track by ID: $trackId")
+        Log.d("TracksRepository", "🔍 getTrackById called: $trackId")
 
         var trackEntity = trackDao.getTrackByExternalId(trackId)
+        Log.d("TracksRepository", "First search by externalId: ${trackEntity?.trackName ?: "NOT FOUND"}")
 
         if (trackEntity == null) {
+            // Пробуем без local_ префикса
             val cleanId = if (trackId.startsWith("local_")) {
                 trackId.removePrefix("local_")
             } else {
                 trackId
             }
+            Log.d("TracksRepository", "Trying clean ID: $cleanId")
             trackEntity = trackDao.getTrackByExternalId(cleanId)
+            Log.d("TracksRepository", "Second search by cleanId: ${trackEntity?.trackName ?: "NOT FOUND"}")
         }
 
-        if (trackEntity != null) {
-            Log.d("TracksRepository", "Track found: ${trackEntity.trackName}, isFavorite: ${trackEntity.isFavorite}")
-        } else {
-            Log.w("TracksRepository", "Track not found: $trackId")
-        }
+        val result = trackEntity?.toTrack()
+        Log.d("TracksRepository", "🔍 getTrackById result: ${result?.trackName ?: "NULL"}")
 
-        return trackEntity?.toTrack()
+        return result
     }
 }

@@ -5,6 +5,8 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.new_project.data.database.dao.PlaylistDao
 import com.example.new_project.data.database.dao.TrackDao
 import com.example.new_project.data.database.entity.PlaylistEntity
@@ -21,10 +23,10 @@ import com.example.new_project.data.database.entity.TrackEntity
         PlaylistEntity::class,
         PlaylistTrackCrossRef::class
     ],
-    version = 1,
-    exportSchema = true  // Важно для миграций в будущем
+    version = 2,  // ✅ ИЗМЕНЕНО: увеличили версию с 1 на 2
+    exportSchema = true
 )
-@TypeConverters()  // Здесь можно добавить конвертеры для сложных типов
+@TypeConverters()
 abstract class AppDatabase : RoomDatabase() {
 
     // ========== DAO ДОСТУП ==========
@@ -36,6 +38,14 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        // ✅ НОВОЕ: миграция с версии 1 на 2
+        private val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Добавляем новую колонку cover_image_uri в таблицу playlists
+                database.execSQL("ALTER TABLE playlists ADD COLUMN cover_image_uri TEXT")
+            }
+        }
+
         /**
          * Получает экземпляр базы данных (синглтон).
          * @param context контекст приложения
@@ -46,9 +56,9 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "playlist_maker.db"  // Имя файла базы данных
+                    "playlist_maker.db"
                 )
-                    .fallbackToDestructiveMigration()  // Временное решение - удаляет базу при изменении версии
+                    .addMigrations(MIGRATION_1_2)  // ✅ ИЗМЕНЕНО: добавляем миграцию вместо деструктивной
                     .build()
 
                 INSTANCE = instance

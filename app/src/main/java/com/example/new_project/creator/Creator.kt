@@ -117,7 +117,8 @@ object Creator {
     fun createPlaylistViewModel(playlistId: Long): PlaylistViewModel {
         return PlaylistViewModel(
             playlistId = playlistId,
-            playlistsRepository = getPlaylistsRepository()
+            playlistsRepository = getPlaylistsRepository(),
+            tracksRepository = getTracksRepository() // ✅ ДОБАВЛЕНО
         )
     }
 

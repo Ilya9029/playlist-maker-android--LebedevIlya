@@ -5,14 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +25,8 @@ import androidx.compose.ui.unit.sp
 fun MainScreen(
     onOpenSongs: () -> Unit,
     onOpenPlaylists: () -> Unit,
-    onOpenFavorites: () -> Unit
+    onOpenFavorites: () -> Unit,
+    onOpenSettings: () -> Unit  // ✅ НОВОЕ: параметр для настроек
 ) {
     MaterialTheme {
         Surface(
@@ -69,6 +68,7 @@ fun MainScreen(
                     MenuItem("Songs", topOffset = 8.dp, onClick = onOpenSongs)
                     MenuItem("Playlists", onClick = onOpenPlaylists)
                     MenuItem("Favorites", onClick = onOpenFavorites)
+                    MenuItem("Settings", onClick = onOpenSettings)  // ✅ НОВОЕ: пункт настроек
                 }
             }
         }
@@ -85,6 +85,7 @@ fun MenuItem(
         "Songs" -> Icons.Filled.Search
         "Playlists" -> Icons.Filled.QueueMusic
         "Favorites" -> Icons.Filled.FavoriteBorder
+        "Settings" -> Icons.Filled.Settings  // ✅ НОВОЕ: иконка для настроек
         else -> Icons.Filled.Search
     }
 
@@ -113,7 +114,7 @@ fun MenuItem(
         Spacer(modifier = Modifier.weight(1f))
 
         Icon(
-            imageVector = Icons.Filled.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             modifier = Modifier.padding(end = 24.dp)
         )

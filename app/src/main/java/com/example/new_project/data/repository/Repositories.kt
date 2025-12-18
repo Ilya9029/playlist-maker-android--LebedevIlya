@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface PlaylistsRepository {
     suspend fun getPlaylist(playlistId: Long): Playlist?
     fun getAllPlaylists(): Flow<List<Playlist>>
-    suspend fun addNewPlaylist(name: String, description: String)
+    suspend fun addNewPlaylist(name: String, description: String, coverImageUri: String? = null)  // ✅ ИЗМЕНЕНО: добавлен параметр coverImageUri
     suspend fun deletePlaylistById(id: Long)
 }
 
@@ -20,7 +20,5 @@ interface TracksRepository {
     suspend fun updateTrackFavoriteStatus(track: Track, isFavorite: Boolean)
     suspend fun deleteTracksByPlaylistId(playlistId: Long)
     suspend fun getTrackById(trackId: String): Track?
-
-    // ✅ НОВЫЙ МЕТОД: проверка, есть ли трек в плейлисте
     suspend fun isTrackInPlaylist(track: Track, playlistId: Long): Boolean
 }
