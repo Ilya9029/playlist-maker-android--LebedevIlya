@@ -2,11 +2,13 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // ✅ ДОБАВЛЕН плагин для Room
+    id("kotlin-kapt")
 }
 
 android {
     namespace = "com.example.new_project"
-    compileSdk = 36  // ✅ ИСПРАВЛЕНО
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.new_project"
@@ -32,7 +34,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"  // ✅ Можно оставить "11" для Java 11
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -55,14 +57,14 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     // Network
-    implementation(libs.retrofit2.retrofit)            // ✅ УДАЛИТЬ дубли
-    implementation(libs.converter.gson)                // ✅ УДАЛИТЬ дубли
+    implementation(libs.retrofit2.retrofit)
+    implementation(libs.converter.gson)
 
     // Coroutines
-    implementation(libs.kotlinx.coroutines.core)       // ✅ УДАЛИТЬ дубли
-    implementation(libs.kotlinx.coroutines.android)    // ✅ УДАЛИТЬ дубли
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.android)
 
-    // Для логирования сетевых запросов (опционально)
+    // Для логирования сетевых запросов
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation(libs.androidx.compose.foundation)
 
@@ -74,5 +76,18 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Image loading
     implementation("io.coil-kt:coil-compose:2.5.0")
+
+    // ✅ НОВЫЕ ЗАВИСИМОСТИ ДЛЯ ЗАДАНИЯ:
+
+    // Room для хранения плейлистов и треков
+    implementation("androidx.room:room-runtime:2.6.0")
+    implementation("androidx.room:room-ktx:2.6.0")  // поддержка Kotlin корутин и Flow
+    kapt("androidx.room:room-compiler:2.6.0")      // компилятор Room (ВАЖНО: kapt!)
+
+    // DataStore для хранения истории поиска
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences-core:1.0.0")
 }

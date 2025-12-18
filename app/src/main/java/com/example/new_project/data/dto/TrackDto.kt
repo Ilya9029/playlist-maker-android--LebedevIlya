@@ -17,7 +17,7 @@ data class TrackDto(
     val trackTimeMillis: Long,
 
     @SerializedName("artworkUrl100")
-    val artworkUrl: String?,
+    val artworkUrl: String?,  // API присылает 100x100
 
     @SerializedName("previewUrl")
     val previewUrl: String?,
@@ -37,7 +37,8 @@ data class TrackDto(
             // Конвертируем миллисекунды в читаемый формат "MM:SS"
             trackTime = formatMillisToString(trackTimeMillis),
             albumName = albumName,
-            artworkUrl = artworkUrl,
+            // ✅ ИСПРАВЛЕНИЕ: увеличиваем размер обложки с 100x100 до 600x600
+            artworkUrl = enhanceArtworkUrl(artworkUrl),
             // По умолчанию трек не в избранном
             isFavorite = false
         )
@@ -69,5 +70,20 @@ data class TrackDto(
         val minutes = totalSeconds / 60
         val seconds = totalSeconds % 60
         return String.format("%d:%02d", minutes, seconds)
+    }
+
+    /**
+     * ✅ НОВЫЙ МЕТОД: улучшает качество обложки
+     * Заменяет 100x100 на 600x600 в URL
+     * iTunes API поддерживает размеры: 30x30, 60x60, 100x100, 600x600
+     */
+    private fun enhanceArtworkUrl(originalUrl: String?): String? {
+        if (originalUrl == null) return null
+
+        // Заменяем "100x100bb" на "600x600bb" в URL
+        return originalUrl.replace("100x100bb", "600x600bb")
+
+        // Альтернатива: можно использовать 1200x1200, если API поддерживает
+        // return originalUrl.replace("100x100bb", "1200x1200bb")
     }
 }

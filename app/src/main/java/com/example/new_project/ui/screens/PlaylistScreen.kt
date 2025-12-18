@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,9 +27,17 @@ fun PlaylistScreen(
     playlistId: Long,
     viewModel: PlaylistViewModel,
     onBack: () -> Unit,
-    onOpenTrackDetails: (String) -> Unit  // ← ДОБАВЛЕН новый параметр
+    onOpenTrackDetails: (String) -> Unit
 ) {
-    val playlistState by viewModel.playlist.collectAsState(initial = null)
+    // ✅ ИСПРАВЛЕНО: collectAsState() без initial значения (StateFlow уже имеет значение)
+    val playlistState by viewModel.playlist.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // ✅ Автоматически обновляем при изменении playlistId
+    LaunchedEffect(playlistId) {
+        viewModel.refreshPlaylist()
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -75,13 +84,55 @@ fun PlaylistScreen(
                     .background(Color.White)
                     .padding(16.dp)
             ) {
+                // ✅ ИСПРАВЛЕНА логика отображения состояний
                 when {
-                    playlistState == null -> {
+                    isLoading -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
+                        }
+                    }
+
+                    error != null -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                Text(
+                                    text = "Ошибка",
+                                    fontSize = 18.sp,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                                Text(
+                                    text = error!!,
+                                    fontSize = 14.sp,
+                                    color = Color.Gray
+                                )
+                                Button(
+                                    onClick = { viewModel.refreshPlaylist() }
+                                ) {
+                                    Text("Повторить")
+                                }
+                            }
+                        }
+                    }
+
+                    playlistState == null -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "Плейлист не найден",
+                                fontSize = 16.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
 
@@ -156,7 +207,6 @@ fun PlaylistScreen(
                                     TrackListItem(
                                         track = track,
                                         onClick = {
-                                            // ИСПРАВЛЕНО: открываем детали трека
                                             onOpenTrackDetails(track.id)
                                         }
                                     )
