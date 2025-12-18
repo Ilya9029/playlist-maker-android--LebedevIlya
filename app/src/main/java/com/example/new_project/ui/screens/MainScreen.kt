@@ -1,19 +1,16 @@
-package com.example.new_project
+package com.example.new_project.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,8 +23,10 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MainScreen(
-    onOpenSearch: () -> Unit,
-    onOpenSettings: () -> Unit
+    onOpenSongs: () -> Unit,
+    onOpenPlaylists: () -> Unit,
+    onOpenFavorites: () -> Unit,
+    onOpenSettings: () -> Unit  // ✅ НОВОЕ: параметр для настроек
 ) {
     MaterialTheme {
         Surface(
@@ -66,10 +65,10 @@ fun MainScreen(
                         )
                         .background(Color.White)
                 ) {
-                    MenuItem("Поиск", topOffset = 8.dp, onClick = onOpenSearch)
-                    MenuItem("Плейлисты")
-                    MenuItem("Избранное")
-                    MenuItem("Настройки", onClick = onOpenSettings)
+                    MenuItem("Songs", topOffset = 8.dp, onClick = onOpenSongs)
+                    MenuItem("Playlists", onClick = onOpenPlaylists)
+                    MenuItem("Favorites", onClick = onOpenFavorites)
+                    MenuItem("Settings", onClick = onOpenSettings)  // ✅ НОВОЕ: пункт настроек
                 }
             }
         }
@@ -83,10 +82,10 @@ fun MenuItem(
     onClick: () -> Unit = {}
 ) {
     val leadingIcon = when (title) {
-        "Поиск" -> Icons.Filled.Search
-        "Плейлисты" -> Icons.Filled.QueueMusic
-        "Избранное" -> Icons.Filled.FavoriteBorder
-        "Настройки" -> Icons.Filled.Settings
+        "Songs" -> Icons.Filled.Search
+        "Playlists" -> Icons.Filled.QueueMusic
+        "Favorites" -> Icons.Filled.FavoriteBorder
+        "Settings" -> Icons.Filled.Settings  // ✅ НОВОЕ: иконка для настроек
         else -> Icons.Filled.Search
     }
 
@@ -115,7 +114,7 @@ fun MenuItem(
         Spacer(modifier = Modifier.weight(1f))
 
         Icon(
-            imageVector = Icons.Filled.KeyboardArrowRight,
+            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
             modifier = Modifier.padding(end = 24.dp)
         )

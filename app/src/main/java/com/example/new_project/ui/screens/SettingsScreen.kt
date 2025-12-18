@@ -1,4 +1,4 @@
-package com.example.new_project
+package com.example.new_project.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -7,27 +7,24 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Description
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.new_project.R
+import androidx.core.net.toUri
 
 @Composable
 fun SettingsScreen(
@@ -36,7 +33,8 @@ fun SettingsScreen(
     val context = LocalContext.current
     var isDarkTheme by remember { mutableStateOf(false) }
 
-    val shareAppUrl = stringResource(R.string.share_app_url)
+    // ✅ ПОЛУЧАЕМ СТРОКИ ЗАРАНЕЕ (вне onClick)
+    val shareUrl = stringResource(R.string.share_app_url)
     val supportEmail = stringResource(R.string.support_email)
     val emailSubject = stringResource(R.string.support_email_subject)
     val emailBody = stringResource(R.string.support_email_body)
@@ -51,33 +49,27 @@ fun SettingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 // Синяя шапка
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .padding(horizontal = 12.dp),
-                    contentAlignment = Alignment.CenterStart
+                        .padding(start = 16.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Назад",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .clickable { onBack() }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Настройки",
-                            color = Color.White,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Назад",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onBack() }
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = "Настройки",
+                        fontSize = 22.sp,
+                        color = Color.White
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -87,13 +79,13 @@ fun SettingsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight()
-                        .background(
-                            Color.White,
-                            shape = RoundedCornerShape(
+                        .clip(
+                            RoundedCornerShape(
                                 topStart = 16.dp,
                                 topEnd = 16.dp
                             )
                         )
+                        .background(Color.White)
                 ) {
                     SettingsItemWithSwitch(
                         title = stringResource(R.string.dark_theme),
@@ -108,7 +100,7 @@ fun SettingsScreen(
                         onClick = {
                             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                 type = "text/plain"
-                                putExtra(Intent.EXTRA_TEXT, shareAppUrl)
+                                putExtra(Intent.EXTRA_TEXT, shareUrl)  // ✅ Используем предварительно полученную строку
                             }
                             context.startActivity(
                                 Intent.createChooser(shareIntent, null)
@@ -122,9 +114,9 @@ fun SettingsScreen(
                         onClick = {
                             val emailIntent = Intent(Intent.ACTION_SENDTO).apply {
                                 data = Uri.parse("mailto:")
-                                putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmail))
-                                putExtra(Intent.EXTRA_SUBJECT, emailSubject)
-                                putExtra(Intent.EXTRA_TEXT, emailBody)
+                                putExtra(Intent.EXTRA_EMAIL, arrayOf(supportEmail))  // ✅ Используем предварительно полученную строку
+                                putExtra(Intent.EXTRA_SUBJECT, emailSubject)        // ✅ Используем предварительно полученную строку
+                                putExtra(Intent.EXTRA_TEXT, emailBody)              // ✅ Используем предварительно полученную строку
                             }
                             try {
                                 context.startActivity(emailIntent)
@@ -140,7 +132,7 @@ fun SettingsScreen(
                         onClick = {
                             val browserIntent = Intent(
                                 Intent.ACTION_VIEW,
-                                Uri.parse(agreementUrl)
+                                agreementUrl.toUri()  // ✅ Используем предварительно полученную строку
                             )
                             context.startActivity(browserIntent)
                         }
@@ -169,7 +161,7 @@ fun SettingsItemWithSwitch(
         Text(
             text = title,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Normal
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
         )
 
         Switch(
@@ -202,7 +194,7 @@ fun SettingsItem(
         Text(
             text = title,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Normal
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Normal
         )
 
         Icon(
