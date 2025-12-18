@@ -10,15 +10,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.new_project.domain.Track
 import com.example.new_project.ui.components.DeleteConfirmationDialog
 import com.example.new_project.ui.viewmodel.PlaylistsViewModel
@@ -128,9 +130,8 @@ fun FavoritesScreen(
             }
 
             // Диалог удаления из избранного
-            // Диалог удаления из избранного
             if (showDeleteDialog && selectedTrackForDeletion != null) {
-                val currentTrack = selectedTrackForDeletion!!  // Сохраняем в локальную переменную
+                val currentTrack = selectedTrackForDeletion!!
 
                 DeleteConfirmationDialog(
                     title = "Удалить из избранного",
@@ -191,8 +192,44 @@ private fun FavoriteTrackItem(
                 onLongClick = onLongPress
             )
             .padding(vertical = 12.dp, horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // ✅ ОБНОВЛЕНО: Добавлена обложка трека
+        Box(
+            modifier = Modifier.size(48.dp)
+        ) {
+            if (track.artworkUrl != null) {
+                AsyncImage(
+                    model = track.artworkUrl,
+                    contentDescription = "Обложка трека: ${track.trackName}",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                // Плейсхолдер если нет обложки
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color.Gray.copy(alpha = 0.1f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.MusicNote,
+                        contentDescription = "Нет обложки",
+                        modifier = Modifier.size(24.dp),
+                        tint = Color.Gray
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        // Информация о треке
         Column(
             modifier = Modifier.weight(1f)
         ) {
@@ -210,6 +247,7 @@ private fun FavoriteTrackItem(
 
         Spacer(modifier = Modifier.width(8.dp))
 
+        // Время трека
         Text(
             text = track.trackTime,
             fontSize = 12.sp,
