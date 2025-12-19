@@ -3,9 +3,8 @@ package com.example.new_project.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.new_project.data.repository.PlaylistsRepository
-import com.example.new_project.data.repository.TracksRepository
-import com.example.new_project.domain.Playlist
+import com.example.new_project.domain.PlaylistsRepository
+import com.example.new_project.domain.TracksRepository
 import com.example.new_project.domain.Track
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,7 +40,7 @@ class PlaylistsViewModel(
 
     // ========== ОСНОВНЫЕ МЕТОДЫ ==========
 
-    fun createNewPlayList(namePlaylist: String, description: String, coverImageUri: String? = null) {  // ✅ ИЗМЕНЕНО: добавлен параметр
+    fun createNewPlayList(namePlaylist: String, description: String, coverImagePath: String? = null) {  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
         if (namePlaylist.isBlank()) {
             _createPlaylistError.value = "Введите название плейлиста"
             return
@@ -53,7 +52,7 @@ class PlaylistsViewModel(
                 _createPlaylistError.value = null
                 _createPlaylistSuccess.value = false
 
-                playlistsRepository.addNewPlaylist(namePlaylist, description, coverImageUri)  // ✅ ИЗМЕНЕНО: передаем URI
+                playlistsRepository.addNewPlaylist(namePlaylist, description, coverImagePath)  // ✅ ИЗМЕНЕНО: передаем путь к файлу
                 _createPlaylistSuccess.value = true
             } catch (e: Exception) {
                 _createPlaylistError.value = "Ошибка создания: ${e.message}"

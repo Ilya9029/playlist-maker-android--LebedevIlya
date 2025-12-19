@@ -19,8 +19,8 @@ data class PlaylistEntity(
     @ColumnInfo(name = "description")
     val description: String,
 
-    @ColumnInfo(name = "cover_image_uri")  // ✅ НОВОЕ: колонка для URI обложки
-    val coverImageUri: String? = null,
+    @ColumnInfo(name = "cover_image_path")  // ✅ ИЗМЕНЕНО: путь к файлу вместо URI
+    val coverImagePath: String? = null,
 
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis()
@@ -34,7 +34,7 @@ data class PlaylistEntity(
             id = id,
             name = name,
             description = description,
-            coverImageUri = coverImageUri,  // ✅ НОВОЕ: передаем URI обложки
+            coverImagePath = coverImagePath,  // ✅ ИЗМЕНЕНО: передаем путь к файлу
             tracks = tracks
         )
     }
@@ -48,7 +48,7 @@ data class PlaylistEntity(
                 id = playlist.id.takeIf { it > 0 } ?: 0,  // Сохраняем существующий ID или 0 для нового
                 name = playlist.name,
                 description = playlist.description,
-                coverImageUri = playlist.coverImageUri  // ✅ НОВОЕ: сохраняем URI обложки
+                coverImagePath = playlist.coverImagePath  // ✅ ИЗМЕНЕНО: сохраняем путь к файлу
             )
         }
     }

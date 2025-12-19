@@ -1,13 +1,11 @@
-package com.example.new_project.data.repository
+package com.example.new_project.domain
 
-import com.example.new_project.domain.Playlist
-import com.example.new_project.domain.Track
 import kotlinx.coroutines.flow.Flow
 
 interface PlaylistsRepository {
     suspend fun getPlaylist(playlistId: Long): Playlist?
     fun getAllPlaylists(): Flow<List<Playlist>>
-    suspend fun addNewPlaylist(name: String, description: String, coverImageUri: String? = null)  // ✅ ИЗМЕНЕНО: добавлен параметр coverImageUri
+    suspend fun addNewPlaylist(name: String, description: String, coverImagePath: String? = null)  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
     suspend fun deletePlaylistById(id: Long)
 }
 

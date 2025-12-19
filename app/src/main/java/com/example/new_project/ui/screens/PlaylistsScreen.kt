@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -20,12 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.new_project.domain.Playlist
+import com.example.new_project.ui.components.PlaylistCoverImage
 import com.example.new_project.ui.viewmodel.PlaylistsViewModel
 
 @Composable
@@ -144,7 +141,6 @@ fun PlaylistsScreen(
     }
 }
 
-// Обновленный компонент для одного плейлиста в списке
 @Composable
 fun PlaylistListItem(
     playlist: Playlist,
@@ -162,33 +158,13 @@ fun PlaylistListItem(
         Box(
             modifier = Modifier.size(56.dp)
         ) {
-            if (playlist.coverImageUri != null) {
-                // ✅ НОВОЕ: показываем обложку если есть
-                AsyncImage(
-                    model = android.net.Uri.parse(playlist.coverImageUri),
-                    contentDescription = playlist.name,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(8.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                // Плейсхолдер если нет обложки
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Gray.copy(alpha = 0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.MusicNote,
-                        contentDescription = "Нет обложки",
-                        modifier = Modifier.size(24.dp),
-                        tint = Color.Gray
-                    )
-                }
-            }
+            // ✅ ИЗМЕНЕНО: используем PlaylistCoverImage вместо AsyncImage
+            PlaylistCoverImage(
+                imagePath = playlist.coverImagePath,  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(8.dp))
+            )
         }
 
         Spacer(modifier = Modifier.width(16.dp))

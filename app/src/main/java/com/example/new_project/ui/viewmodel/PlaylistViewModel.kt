@@ -2,8 +2,8 @@ package com.example.new_project.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.new_project.data.repository.PlaylistsRepository
-import com.example.new_project.data.repository.TracksRepository
+import com.example.new_project.domain.PlaylistsRepository
+import com.example.new_project.domain.TracksRepository
 import com.example.new_project.domain.Playlist
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
