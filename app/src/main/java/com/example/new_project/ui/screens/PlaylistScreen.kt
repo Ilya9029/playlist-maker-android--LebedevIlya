@@ -17,13 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.example.new_project.ui.components.DeleteConfirmationDialog
 import com.example.new_project.ui.search.TrackListItem
 import com.example.new_project.ui.viewmodel.PlaylistViewModel
+import com.example.new_project.data.utils.loadBitmapFromPath
 import kotlinx.coroutines.launch
 
 @Composable
@@ -148,9 +149,9 @@ fun PlaylistScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    // ✅ ОБНОВЛЕНО: показываем обложку плейлиста
+                                    // ✅ ИЗМЕНЕНО: используем путь к файлу вместо URI
                                     PlaylistCoverImage(
-                                        coverImageUri = playlistState?.coverImageUri,
+                                        coverImagePath = playlistState?.coverImagePath,  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
                                         size = 150.dp
                                     )
 
@@ -180,7 +181,7 @@ fun PlaylistScreen(
                             val playlist = playlistState!!
 
                             Column {
-                                // ✅ ОБНОВЛЕНО: обложка и информация о плейлисте
+                                // ✅ ИЗМЕНЕНО: обложка и информация о плейлисте
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -188,7 +189,7 @@ fun PlaylistScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     PlaylistCoverImage(
-                                        coverImageUri = playlist.coverImageUri,
+                                        coverImagePath = playlist.coverImagePath,  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
                                         size = 150.dp
                                     )
 
@@ -299,10 +300,10 @@ fun PlaylistScreen(
     }
 }
 
-// ✅ НОВЫЙ КОМПОНЕНТ: обложка плейлиста
+// ✅ ИЗМЕНЕННЫЙ КОМПОНЕНТ: обложка плейлиста из файла
 @Composable
 fun PlaylistCoverImage(
-    coverImageUri: String?,
+    coverImagePath: String?,  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
     size: androidx.compose.ui.unit.Dp = 56.dp
 ) {
     Box(
@@ -311,25 +312,36 @@ fun PlaylistCoverImage(
             .clip(RoundedCornerShape(12.dp))
             .background(Color.Gray.copy(alpha = 0.1f))
     ) {
-        if (coverImageUri != null) {
-            AsyncImage(
-                model = android.net.Uri.parse(coverImageUri),
-                contentDescription = "Обложка плейлиста",
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.MusicNote,
-                    contentDescription = "Нет обложки",
-                    modifier = Modifier.size(size * 0.5f),
-                    tint = Color.Gray
+        if (!coverImagePath.isNullOrEmpty()) {
+            // ✅ ИЗМЕНЕНО: загружаем Bitmap из файла
+            val bitmap = loadBitmapFromPath(coverImagePath)
+            if (bitmap != null) {
+                Image(
+                    bitmap = bitmap.asImageBitmap(),
+                    contentDescription = "Обложка плейлиста",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
+            } else {
+                PlaceholderCover(size)
             }
+        } else {
+            PlaceholderCover(size)
         }
+    }
+}
+
+@Composable
+private fun PlaceholderCover(size: androidx.compose.ui.unit.Dp) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.MusicNote,
+            contentDescription = "Нет обложки",
+            modifier = Modifier.size(size * 0.5f),
+            tint = Color.Gray
+        )
     }
 }

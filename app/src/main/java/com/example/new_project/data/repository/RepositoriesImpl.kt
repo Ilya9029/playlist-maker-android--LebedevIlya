@@ -9,7 +9,9 @@ import com.example.new_project.data.database.entity.TrackEntity
 import com.example.new_project.data.dto.TracksSearchResponse
 import com.example.new_project.domain.NetworkClient
 import com.example.new_project.domain.Playlist
+import com.example.new_project.domain.PlaylistsRepository
 import com.example.new_project.domain.Track
+import com.example.new_project.domain.TracksRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -42,11 +44,11 @@ class PlaylistsRepositoryImpl(
             }
     }
 
-    override suspend fun addNewPlaylist(name: String, description: String, coverImageUri: String?) {  // ✅ ИЗМЕНЕНО: добавлен параметр
+    override suspend fun addNewPlaylist(name: String, description: String, coverImagePath: String?) {  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
         val playlistEntity = com.example.new_project.data.database.entity.PlaylistEntity(
             name = name,
             description = description,
-            coverImageUri = coverImageUri  // ✅ НОВОЕ: передаем URI обложки
+            coverImagePath = coverImagePath  // ✅ ИЗМЕНЕНО: coverImageUri → coverImagePath
         )
         playlistDao.insertPlaylist(playlistEntity)
     }

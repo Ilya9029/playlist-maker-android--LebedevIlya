@@ -4,6 +4,6 @@ data class Playlist(
     val id: Long = 0,
     val name: String,
     val description: String,
-    val coverImageUri: String? = null,  // ✅ НОВОЕ: URI обложки плейлиста
+    val coverImagePath: String? = null,  // ✅ ИЗМЕНЕНО: путь к файлу вместо URI
     var tracks: List<Track> = emptyList()
 )

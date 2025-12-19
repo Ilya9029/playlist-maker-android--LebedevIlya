@@ -19,16 +19,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import coil.compose.AsyncImage
-import com.example.new_project.R
+import com.example.new_project.data.utils.loadBitmapFromPath
+import com.example.new_project.data.utils.saveImageToInternalStorage
 import com.example.new_project.ui.viewmodel.PlaylistsViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun NewPlaylistScreen(
@@ -37,15 +37,25 @@ fun NewPlaylistScreen(
 ) {
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var coverImageUri by remember { mutableStateOf<String?>(null) }
+    var coverImagePath by remember { mutableStateOf<String?>(null) }
+    var previewBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     // Launcher для выбора изображения из галереи
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let {
-            coverImageUri = it.toString()
+        uri?.let { selectedUri ->
+            // Сохраняем изображение во внутреннее хранилище
+            scope.launch {
+                val savedFilePath = saveImageToInternalStorage(context, selectedUri)
+                if (savedFilePath != null) {
+                    coverImagePath = savedFilePath
+                    // Загружаем Bitmap для предпросмотра
+                    previewBitmap = loadBitmapFromPath(savedFilePath)
+                }
+            }
         }
     }
 
@@ -146,10 +156,10 @@ fun NewPlaylistScreen(
                         .background(Color.Gray.copy(alpha = 0.1f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (coverImageUri != null) {
-                        // Показываем выбранное изображение
-                        AsyncImage(
-                            model = Uri.parse(coverImageUri),
+                    if (previewBitmap != null) {
+                        // Показываем сохраненное изображение из файла
+                        Image(
+                            bitmap = previewBitmap!!.asImageBitmap(),
                             contentDescription = "Обложка плейлиста",
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
@@ -198,8 +208,8 @@ fun NewPlaylistScreen(
                     onClick = {
                         // Проверяем, что имя не пустое
                         if (name.isNotBlank()) {
-                            // Вызываем ViewModel с URI обложки
-                            viewModel.createNewPlayList(name, description, coverImageUri)
+                            // ✅ ИЗМЕНЕНО: передаем путь к файлу, а не URI
+                            viewModel.createNewPlayList(name, description, coverImagePath)
                             // Возвращаемся на экран плейлистов
                             onBack()
                         }
@@ -209,7 +219,8 @@ fun NewPlaylistScreen(
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2962FF)
-                    )
+                    ),
+                    enabled = name.isNotBlank()
                 ) {
                     Text(
                         "Сохранить",

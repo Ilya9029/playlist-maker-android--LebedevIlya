@@ -8,9 +8,9 @@ import com.example.new_project.data.RetrofitNetworkClient
 import com.example.new_project.data.database.AppDatabase
 import com.example.new_project.data.network.api.ITunesApiService
 import com.example.new_project.data.preferences.SearchHistoryPreferences
-import com.example.new_project.data.repository.PlaylistsRepository
+import com.example.new_project.domain.PlaylistsRepository
 import com.example.new_project.data.repository.PlaylistsRepositoryImpl
-import com.example.new_project.data.repository.TracksRepository
+import com.example.new_project.domain.TracksRepository
 import com.example.new_project.data.repository.TracksRepositoryImpl
 import com.example.new_project.domain.NetworkClient
 import com.example.new_project.ui.search.SearchViewModel

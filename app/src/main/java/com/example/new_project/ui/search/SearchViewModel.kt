@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.new_project.data.preferences.SearchHistoryPreferences
-import com.example.new_project.data.repository.TracksRepository
+import com.example.new_project.domain.TracksRepository
 import com.example.new_project.domain.SearchState
 import com.example.new_project.domain.Track
 import kotlinx.coroutines.flow.MutableStateFlow
